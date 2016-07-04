@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+    <link rel="stylesheet" href="joint.css" />
+    <script src="jquery.min.js"></script>
+    <script src="lodash.min.js"></script>
+    <script src="backbone-min.js"></script>
+    <script src="joint.js"></script>
+    <script src="main.js"></script>
+    <script src="dagre.js"></script>
+</head>
+<body>
+  <div id="myholder"></div>
+  <script type="text/javascript">
+
+    var nodes = [
+        {
+            title: 'hello'
+        },
+        {
+            title: 'look'
+        },
+        {
+            title: 'smooth'
+        },
+        {
+            title: 'very'
+        }
+
+    ];
+
+
+    var graph = new joint.dia.Graph;
+    
+    var paper = new joint.dia.Paper({
+        el: $('#myholder'),
+        width: 1000,
+        height: 1000,
+        model: graph,
+        gridSize: 1
+    });
+
+
+    // link3.set('router', { name: 'orthogonal' });
+    // link4.set('router', { name: 'orthogonal' });
+
+
+
+    var g = new dagre.graphlib.Graph();
+
+
+    // Set an object for the graph label
+    g.setGraph({});
+
+    // Default to assigning a new object as a label for each new edge.
+    g.setDefaultEdgeLabel(function() { return {}; });
+
+    // Add nodes to the graph. The first argument is the node id. The second is
+    // metadata about the node. In this case we're going to add labels to each of
+    // our nodes.
+    
+    g.setNode("Архив",    { label: "Архив",  width: 190, height: 70 });
+    g.setNode("Проверено",    { label: "Проверено",  width: 190, height: 70 });
+    g.setNode("Утверждено",    { label: "Утверждено",  width: 190, height: 70 });
+    g.setNode("Проект",    { label: "Проект",  width: 190, height: 70 });
+    g.setNode("Согласовано",    { label: "Согласовано",  width: 190, height: 70 });
+    g.setNode("На проверку",    { label: "На проверку",  width: 190, height: 70 });
+    g.setNode("На согласовании", { label: "На согласовании",  width: 190, height: 70 });
+    g.setNode("На доработку", { label: "На доработку",  width: 190, height: 70 });
+    g.setNode("На утверждение", { label: "На доработку",  width: 190, height: 70 });
+
+    // Add edges to the graph.
+    g.setEdge("Архив", "Проверено");
+    g.setEdge("Архив", "Согласовано");
+    g.setEdge("Архив", "Утверждено");
+    g.setEdge("Архив", "Проект");
+
+    g.setEdge("Проверено", "Архив");
+    g.setEdge("Проверено", "Утверждено");
+    g.setEdge("Проверено", "Проект");
+    g.setEdge("Проверено", "На проверку");
+    
+    g.setEdge("На проверку", "Проект");
+    g.setEdge("На проверку", "Проверено");
+    g.setEdge("На проверку", "На доработку");
+    g.setEdge("На проверку", "На согласовании");
+
+    g.setEdge("Утверждено", "Проверено");
+    g.setEdge("Утверждено", "Архив");
+    g.setEdge("Утверждено", "Согласовано");
+    g.setEdge("Утверждено", "Проект");
+    g.setEdge("Утверждено", "На доработку");
+
+    g.setEdge("Проект", "Архив");
+    g.setEdge("Проект", "Согласовано");
+    g.setEdge("Проект", "На согласовании");
+    g.setEdge("Проект", "На утверждение");
+
+
+    dagre.layout(g);
+    
+
+    g.nodes().forEach(function(v) {
+        var node = g.node(v);
+        var rect = new joint.shapes.basic.Rect({
+            id: node.label,
+            position: { x: node.x, y: node.y },
+            size: { width: node.width, height: node.height },
+            attrs: { rect: { fill: 'blue' },
+            text: { text: v, fill: 'white' } }
+        });
+        console.log(rect);
+        graph.addCell(rect);
+    });
+
+
+    var i =0;
+    g.edges().forEach(function(e) {
+        var edge = g.edge(e);
+        var from = g.node(e.v);
+        var to = g.node(e.w);
+        
+        // var link = new joint.dia.Link({
+        //     source: { id: from.label },
+        //     target: { id: to.label }
+        // });
+
+        var link = new joint.dia.Link({
+            source: { id: from.label },
+            target: { id: to.label },
+            router: { name: 'manhattan', 
+            args: {
+                startDirections: i % 2 == 0  ? ['top'] : ['bottom'],
+                endDirections: i % 2 == 0  ? ['left'] : ['right'],
+            }
+            },
+            connector: { name: 'rounded' },
+            attrs: {
+                '.connection': {
+                    stroke: i++ % 2 == 0 ? '#343434': '#8989ff',
+                    'stroke-width': 2
+                },
+                '.marker-target': {
+                    fill: '#333333',
+                    d: 'M 10 0 L 0 5 L 10 10 z'
+                }
+            }
+        });
+        
+
+        graph.addCell(link)
+    });
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </script>
+</body>
+</html>
