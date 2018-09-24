@@ -366,7 +366,7 @@ class Application {
     setupEvents() {
         document.querySelector('#run').addEventListener('click', () => {
             let config = this.loadSettings();
-            this.setup(config);
+            this.setup(config || defaultConfig);
             this.robinBobin.run(); 
         });
         
